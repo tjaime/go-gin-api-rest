@@ -50,7 +50,14 @@ func FindAlunoById(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, aluno)
+}
 
+func DeleleAlunoById(c *gin.Context) {
+	var aluno model.Aluno
+	id := c.Params.ByName("id")
+	db.DB.Delete(&aluno, id)
+	c.JSON(http.StatusOK, gin.H{
+		"Mensage": "Aluno excluído com sucesso!",
+	})
 }

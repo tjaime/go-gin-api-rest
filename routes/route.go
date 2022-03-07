@@ -11,5 +11,6 @@ func HandleRequest() {
 	r.POST("/alunos", controller.InserirAluno)
 	r.GET("/:nome", controller.Saudacao)
 	r.GET("/alunos/:id", controller.FindAlunoById)
+	r.DELETE("/alunos/:id", controller.DeleleAlunoById)
 	r.Run()
 }
