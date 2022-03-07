@@ -70,3 +70,17 @@ func EditarAluno(c *gin.Context) {
 	c.JSON(http.StatusOK, aluno)
 
 }
+
+func FindAlunoByCpf(c *gin.Context) {
+	var aluno model.Aluno
+	cpf := c.Params.ByName("cpf")
+	db.DB.Where(&model.Aluno{CPF: cpf}).First(&aluno)
+
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Error": "Aluno não encontrado",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, aluno)
+}
