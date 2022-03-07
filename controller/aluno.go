@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjaime/go-gin-api-rest/db"
@@ -9,7 +11,9 @@ import (
 )
 
 func ListarAlunos(c *gin.Context) {
-	c.JSON(200, model.Alunos)
+	var alunos []model.Aluno
+	db.DB.Find(&alunos)
+	c.JSON(http.StatusOK, alunos)
 }
 
 func Saudacao(c *gin.Context) {
@@ -27,8 +31,25 @@ func InserirAluno(c *gin.Context) {
 		})
 		return
 	}
-
 	db.DB.Create(&aluno)
+	c.JSON(http.StatusOK, aluno)
+}
+
+func FindAlunoById(c *gin.Context) {
+	var aluno model.Aluno
+	id := c.Params.ByName("id")
+	idConvertido, err := strconv.Atoi(id)
+	if err != nil {
+		log.Panic("Erro ao converter o id do Aluno")
+	}
+	db.DB.First(&aluno, idConvertido)
+
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Error": "Aluno não encontrado",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, aluno)
 
