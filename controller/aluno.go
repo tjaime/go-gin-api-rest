@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tjaime/go-gin-api-rest/db"
@@ -38,11 +36,7 @@ func InserirAluno(c *gin.Context) {
 func FindAlunoById(c *gin.Context) {
 	var aluno model.Aluno
 	id := c.Params.ByName("id")
-	idConvertido, err := strconv.Atoi(id)
-	if err != nil {
-		log.Panic("Erro ao converter o id do Aluno")
-	}
-	db.DB.First(&aluno, idConvertido)
+	db.DB.First(&aluno, id)
 
 	if aluno.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -60,4 +54,19 @@ func DeleleAlunoById(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"Mensage": "Aluno excluído com sucesso!",
 	})
+}
+
+func EditarAluno(c *gin.Context) {
+	var aluno model.Aluno
+	id := c.Params.ByName("id")
+	db.DB.First(&aluno, id)
+	if err := c.ShouldBindJSON(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	db.DB.Model(&aluno).UpdateColumns(aluno)
+	c.JSON(http.StatusOK, aluno)
+
 }
