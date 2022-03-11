@@ -29,6 +29,14 @@ func InserirAluno(c *gin.Context) {
 		})
 		return
 	}
+
+	if err := model.ValidaModel(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	db.DB.Create(&aluno)
 	c.JSON(http.StatusOK, aluno)
 }
@@ -66,6 +74,14 @@ func EditarAluno(c *gin.Context) {
 		})
 		return
 	}
+
+	if err := model.ValidaModel(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	db.DB.Model(&aluno).UpdateColumns(aluno)
 	c.JSON(http.StatusOK, aluno)
 
