@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	"github.com/tjaime/go-gin-api-rest/controller"
 )
 
@@ -22,9 +25,11 @@ func TestVerificaSaudacaoStatusOk(t *testing.T) {
 	rsp := httptest.NewRecorder()
 
 	r.ServeHTTP(rsp, req)
-	if rsp.Code != http.StatusOK {
-		t.Fatalf("Actual: %d - Expected: %d",
-			rsp.Code, http.StatusOK)
-	}
+	assert.Equal(t, http.StatusOK, rsp.Code, "Status code.")
 
+	mockRsp := `{"API diz":"Olá, thiago. De boas?"}`
+	rspBody, _ := ioutil.ReadAll(rsp.Body)
+	assert.Equal(t, mockRsp, string(rspBody))
+
+	fmt.Println(string(rspBody))
 }
