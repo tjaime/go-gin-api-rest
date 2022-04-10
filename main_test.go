@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -61,6 +64,75 @@ func TestFindAlunoByCpf(t *testing.T) {
 	r := SetupRotasTest()
 	r.GET("/alunos/cpf/:cpf", controller.FindAlunoByCpf)
 	req, _ := http.NewRequest("GET", "/alunos/cpf/31317916832", nil)
+	rsp := httptest.NewRecorder()
+
+	r.ServeHTTP(rsp, req)
+
+	assert.Equal(t, http.StatusOK, rsp.Code)
+}
+
+func TestFindAlunoById(t *testing.T) {
+	db.ConnectDb()
+
+	// Mock data
+	InsertlunoMock()
+	defer DeleteAlunoMock()
+
+	r := SetupRotasTest()
+	r.GET("/alunos/:id", controller.FindAlunoById)
+
+	pathAlunoById := "/alunos/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("GET", pathAlunoById, nil)
+	rsp := httptest.NewRecorder()
+
+	r.ServeHTTP(rsp, req)
+
+	var alunoMock model.Aluno
+	json.Unmarshal(rsp.Body.Bytes(), &alunoMock)
+
+	assert.Equal(t, "Thiago", alunoMock.Nome)
+	assert.Equal(t, "31317916832", alunoMock.CPF)
+	assert.Equal(t, "333831214", alunoMock.RG)
+
+}
+
+func TestEditAluno(t *testing.T) {
+
+	db.ConnectDb()
+
+	InsertlunoMock()
+	defer DeleteAlunoMock()
+
+	r := SetupRotasTest()
+	r.PATCH("/alunos/:id", controller.EditarAluno)
+
+	aluno := model.Aluno{Nome: "Thiago Jaime", CPF: "71717916832", RG: "443831214"}
+	jsonAluno, _ := json.Marshal(aluno)
+
+	pathEdit := "/alunos/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("PATCH", pathEdit, bytes.NewBuffer(jsonAluno))
+	rsp := httptest.NewRecorder()
+	r.ServeHTTP(rsp, req)
+
+	var alunoTarget model.Aluno
+	json.Unmarshal(rsp.Body.Bytes(), &alunoTarget)
+
+	assert.Equal(t, "71717916832", alunoTarget.CPF)
+	assert.Equal(t, "443831214", alunoTarget.RG)
+	assert.Equal(t, "Thiago Jaime", alunoTarget.Nome)
+
+}
+
+func TestDeleteAluno(t *testing.T) {
+
+	db.ConnectDb()
+	InsertlunoMock()
+
+	r := SetupRotasTest()
+	r.DELETE("/alunos/:id", controller.DeleleAlunoById)
+
+	pathAlunoById := "/alunos/" + strconv.Itoa(ID)
+	req, _ := http.NewRequest("DELETE", pathAlunoById, nil)
 	rsp := httptest.NewRecorder()
 
 	r.ServeHTTP(rsp, req)
