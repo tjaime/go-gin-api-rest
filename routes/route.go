@@ -7,6 +7,8 @@ import (
 
 func HandleRequest() {
 	r := gin.Default()
+	r.LoadHTMLGlob("templates/*")
+	r.NoRoute(controller.Page404)
 	r.GET("/alunos", controller.ListarAlunos)
 	r.POST("/alunos", controller.InserirAluno)
 	r.GET("/:nome", controller.Saudacao)

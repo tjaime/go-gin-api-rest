@@ -100,3 +100,7 @@ func FindAlunoByCpf(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, aluno)
 }
+
+func Page404(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "404.html", nil)
+}
